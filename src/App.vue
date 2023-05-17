@@ -1,6 +1,8 @@
 <template>
-  <main>
-    <router-view />
-  </main>
+  <app-layout>
+    <RouterView />
+  </app-layout>
 </template>
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import AppLayout from "./layouts/AppLayout.vue";
+</script>
