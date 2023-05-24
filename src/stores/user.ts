@@ -1,22 +1,39 @@
 import { defineStore } from "pinia";
-import { User } from "../core/types/user";
 import AuthService from "../services/AuthService";
+import { DisplayUser } from "../core/types/display/DisplayUser";
 
 export const useUserStore = defineStore("user", {
   state: () => {
     return {
-      userList: [] as User[],
-      user: null as User | null,
+      userList: [] as DisplayUser[],
+      user: null as DisplayUser | null,
+      token: "" as string,
     };
   },
   getters: {
-    getFullName(state): string {
-      return `${state.user?.firstName}, ${state.user?.lastName}`;
+    isAuthenticated(state) {
+      if (!state.token) {
+        const token = localStorage.getItem("token");
+        if (token) {
+          this.token = token;
+          return true;
+        }
+        return false;
+      }
+      return true;
     },
   },
   actions: {
-    async login(identifier: string, password: string) {
-      this.user = await AuthService.login(identifier, password);
+    login(identifier: string, password: string) {
+      AuthService.login(identifier, password).then((response) => {
+        this.user = response.user;
+        this.token = response.jwt;
+
+        localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("token", JSON.stringify(response.jwt));
+
+        this.router.push("/");
+      });
     },
     async register(username: string, email: string, password: string) {
       await AuthService.register(username, email, password);

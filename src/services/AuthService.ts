@@ -1,8 +1,8 @@
-import { User } from "../core/types/user";
+import { LoginBody } from "../core/types/requests/loginBody";
 import apiClient from "./httpService";
 
 const login = async (identifier: string, password: string) => {
-  const response = await apiClient.post<User>("auth/local", {
+  const response = await apiClient.post<LoginBody>("auth/local", {
     identifier,
     password,
   });
@@ -11,13 +11,13 @@ const login = async (identifier: string, password: string) => {
 };
 
 const register = async (username: string, email: string, password: string) => {
-  const response = await apiClient.post<User>("auth/local/register", {
+  const response = await apiClient.post("auth/local/register", {
     username,
     email,
     password,
   });
 
-  return response.data;
+  return response;
 };
 
 export default { login, register };

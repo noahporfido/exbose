@@ -9,7 +9,7 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 apiClient.interceptors.response.use(
-  (res) => res.data,
+  (res) => res,
   (err) => {
     if (err.response) {
       return Promise.reject(err.response.data);
