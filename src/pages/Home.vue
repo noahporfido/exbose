@@ -173,9 +173,7 @@ const exchangeCodeForToken = (code: string) => {
 
 const refreshAccessToken = () => {
   if (!refreshToken.value) {
-    console.error(
-      "Refresh token not found. Perform the authorization flow first."
-    );
+    authorize();
     return;
   }
 
