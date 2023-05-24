@@ -110,7 +110,6 @@ const getCurrentTrack = () => {
     })
     .then((response) => {
       // Handle the response data here
-      console.log(response.data);
     })
     .catch((error) => {
       if (error.response && error.response.status === 401) {
@@ -144,7 +143,6 @@ const searchSongs = () => {
     })
     .then((response) => {
       // Handle the response data here
-      console.log(response.data);
     })
     .catch((error) => {
       if (error.response && error.response.status === 401) {
@@ -187,14 +185,12 @@ const exchangeCodeForToken = (code: string) => {
     .then((response) => {
       const tokenData = response.data;
       accessToken.value = tokenData.access_token;
-      console.log("Access token:", tokenData.access_token);
 
       // Save access token to localStorage
       saveAccessToken(tokenData.access_token);
 
       const refreshToken = tokenData.refresh_token;
       if (refreshToken) {
-        console.log("Refresh token:", refreshToken);
         saveRefreshToken(refreshToken);
       }
     })
@@ -220,7 +216,6 @@ const refreshAccessToken = () => {
     .then((response) => {
       const tokenData = response.data;
       accessToken.value = tokenData.access_token;
-      console.log("Access token refreshed:", tokenData.access_token);
 
       // Save the refreshed access token
       saveAccessToken(tokenData.access_token);

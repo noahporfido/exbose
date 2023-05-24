@@ -7,7 +7,6 @@ export const middleware = (
   next: NavigationGuardNext
 ) => {
   const store = useUserStore();
-  console.log(store.isAuthenticated);
   if (store.isAuthenticated) {
     next();
   } else {
