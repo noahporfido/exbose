@@ -6,6 +6,7 @@
     <div class="flex items-center" v-else>
       <input class="rounded m-2 p-2" v-model="searchQuery" />
       <TextButton @click="searchSongs">Search Songs</TextButton>
+      <TextButton @click="getCurrentTrack">Get Current Track</TextButton>
     </div>
   </div>
 </template>
@@ -37,7 +38,7 @@ const authorize = () => {
       localStorage.setItem("code_verifier", codeVerifier.value);
 
       const state = generateRandomString(16);
-      const scope = ""; // Specify the required scopes for your application
+      const scope = "user-read-playback-state"; // Specify the required scopes for your application
 
       const url =
         `${authorizationEndpoint}?client_id=${clientId}` +
@@ -89,6 +90,37 @@ const generateRandomString = (length: number) => {
     );
   }
   return randomString;
+};
+
+const getCurrentTrack = () => {
+  if (!accessToken.value) {
+    console.error(
+      "Access token not found. Perform the authorization flow first."
+    );
+    return;
+  }
+
+  const apiUrl = `https://api.spotify.com/v1/me/player/currently-playing`;
+
+  axios
+    .get(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${accessToken.value}`,
+      },
+    })
+    .then((response) => {
+      // Handle the response data here
+      console.log(response.data);
+    })
+    .catch((error) => {
+      if (error.response && error.response.status === 401) {
+        // Access token expired, try refreshing the token
+        refreshAccessToken();
+      } else {
+        // Handle other errors
+        console.error("Failed to get currently playing:", error);
+      }
+    });
 };
 
 const searchSongs = () => {
