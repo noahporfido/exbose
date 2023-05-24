@@ -1,31 +1,34 @@
 <template>
-  <div class="text-slate-200">
-    <TextButton v-if="!accessToken" @click="authorize">
+  <div>
+    <text-button v-if="showAuthorizeButton" @click="authorize">
       Authorize with Spotify
-    </TextButton>
-    <div v-else>
-      <button @click="searchSongs">Search Songs</button>
-      <input v-model="searchQuery" />
+    </text-button>
+    <div class="flex items-center" v-else>
+      <input class="rounded m-2 p-2" v-model="searchQuery" />
+      <TextButton @click="searchSongs">Search Songs</TextButton>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import TextButton from "@/components/buttons/TextButton.vue";
+import { ref, computed, onMounted } from "vue";
+import TextButton from "../components/buttons/TextButton.vue";
 import axios from "axios";
-import { onMounted } from "vue";
 
 const clientId = "360f9e67c40d463590246aef7b1b591a";
 const redirectUri = "http://localhost:5173";
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
 
+const searchQuery = ref("");
 const codeVerifier = ref("");
 const codeChallenge = ref("");
 const accessToken = ref("");
+const refreshToken = ref("");
 
-const searchQuery = ref("");
+const showAuthorizeButton = computed(() => {
+  return !accessToken.value;
+});
 
 const authorize = () => {
   generateCodeVerifier();
@@ -71,11 +74,9 @@ const generateCodeChallenge = () => {
 };
 
 const base64UrlEncode = (buffer: ArrayBuffer) => {
-  let base64 = btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
-  base64 = base64.replace(/=/g, "");
-  base64 = base64.replace(/\+/g, "-");
-  base64 = base64.replace(/\//g, "_");
-  return base64;
+  const byteArray = new Uint8Array(buffer);
+  const base64 = btoa(String.fromCharCode.apply(null, Array.from(byteArray)));
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 };
 
 const generateRandomString = (length: number) => {
@@ -114,8 +115,13 @@ const searchSongs = () => {
       console.log(response.data);
     })
     .catch((error) => {
-      // Handle any errors here
-      console.error("Failed to search songs:", error);
+      if (error.response && error.response.status === 401) {
+        // Access token expired, try refreshing the token
+        refreshAccessToken();
+      } else {
+        // Handle other errors
+        console.error("Failed to search songs:", error);
+      }
     });
 };
 
@@ -152,22 +158,67 @@ const exchangeCodeForToken = (code: string) => {
       console.log("Access token:", tokenData.access_token);
 
       // Save access token to localStorage
-      localStorage.setItem("access_token", tokenData.access_token);
+      saveAccessToken(tokenData.access_token);
+
+      const refreshToken = tokenData.refresh_token;
+      if (refreshToken) {
+        console.log("Refresh token:", refreshToken);
+        saveRefreshToken(refreshToken);
+      }
     })
     .catch((error) => {
       console.error("Failed to exchange code for token:", error);
     });
 };
 
-const loadAccessTokenFromLocalStorage = () => {
-  const storedAccessToken = localStorage.getItem("access_token");
-  if (storedAccessToken) {
-    accessToken.value = storedAccessToken;
+const refreshAccessToken = () => {
+  if (!refreshToken.value) {
+    console.error(
+      "Refresh token not found. Perform the authorization flow first."
+    );
+    return;
   }
+
+  const data = {
+    grant_type: "refresh_token",
+    refresh_token: refreshToken.value,
+    client_id: clientId,
+  };
+
+  axios
+    .post(tokenEndpoint, new URLSearchParams(data))
+    .then((response) => {
+      const tokenData = response.data;
+      accessToken.value = tokenData.access_token;
+      console.log("Access token refreshed:", tokenData.access_token);
+
+      // Save the refreshed access token
+      saveAccessToken(tokenData.access_token);
+    })
+    .catch((error) => {
+      console.error("Failed to refresh access token:", error);
+    });
+};
+
+const loadAccessTokenFromLocalStorage = () => {
+  return localStorage.getItem("access_token") || "";
+};
+
+const loadRefreshTokenFromLocalStorage = () => {
+  return localStorage.getItem("refresh_token") || "";
+};
+
+const saveAccessToken = (token: string) => {
+  localStorage.setItem("access_token", token);
+};
+
+const saveRefreshToken = (token: string) => {
+  localStorage.setItem("refresh_token", token);
 };
 
 onMounted(() => {
-  loadAccessTokenFromLocalStorage();
+  accessToken.value = loadAccessTokenFromLocalStorage();
+  refreshToken.value = loadRefreshTokenFromLocalStorage();
   handleAuthorizationCallback();
 });
 </script>

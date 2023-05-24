@@ -12,7 +12,7 @@
       warning &&
         secondary &&
         'border-feuerbusch-40 hover:bg-feuerbusch-99 text-feuerbusch-40',
-      warning && !secondary && 'bg-feuerbusch-40 hover:bg-feuerbusch-60 '
+      warning && !secondary && 'bg-feuerbusch-40 hover:bg-feuerbusch-60 ',
     ]"
     @click="onClick()"
   >
@@ -22,34 +22,33 @@
     <span :class="loading ? 'opacity-0' : 'opacity-100'">
       <slot />
     </span>
-    <LoadingSpinner v-if="loading" class="absolute left-1/2 -translate-x-1/2" />
+    <!-- <LoadingSpinner v-if="loading" class="absolute left-1/2 -translate-x-1/2" /> -->
   </button>
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from 'vue-router'
-import LoadingSpinner from '../LoadingSpinner.vue'
+import { useRouter } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 
 interface Props {
-  routeName?: string
-  title?: string
-  callback?: () => void
-  icon?: string
-  secondary?: boolean
-  warning?: boolean
-  loading?: boolean
-  disabled?: boolean
-  params?: { any: string }
+  routeName?: string;
+  title?: string;
+  callback?: () => void;
+  icon?: string;
+  secondary?: boolean;
+  warning?: boolean;
+  loading?: boolean;
+  disabled?: boolean;
+  params?: { any: string };
 }
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 const onClick = (): void => {
   if (!props.callback) {
-    router.push({ name: props.routeName, params: props.params })
+    router.push({ name: props.routeName, params: props.params });
   } else {
-    props.callback()
+    props.callback();
   }
-}
+};
 </script>
