@@ -1,14 +1,40 @@
 import axios, { AxiosInstance } from "axios";
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: "https://accounts.spotify.com/api",
+  baseURL: import.meta.env.VITE_BACKEND_URL,
   headers: {
-    "Content-type": "application/x-www-form-urlencoded",
-    "Access-Control-Allow-Origin": "*",
-    body: `client_credentials&client_id=${
-      import.meta.env.VITE_CLIENT_ID
-    }&client_secret=${import.meta.env.VITE_CLIENT_SECRET}`,
+    Accept: "application/json",
+    "Content-Type": "application/json",
   },
 });
+
+apiClient.interceptors.response.use(
+  (res) => res.data,
+  (err) => {
+    if (err.response) {
+      return Promise.reject(err.response.data);
+    }
+
+    if (err.request) {
+      return Promise.reject(err.request);
+    }
+
+    return Promise.reject(err.message);
+  }
+);
+
+// apiClient.interceptors.response.use(
+//   function (response) {
+//     return response;
+//   },
+//   function (error) {
+//     let res = error.response;
+//     if (res.status == 401) {
+//       window.location.href = "https://example.com/login";
+//     }
+//     console.error("Looks like there was a problem. Status Code:" + res.status);
+//     return Promise.reject(error);
+//   }
+// );
 
 export default apiClient;

@@ -10,5 +10,17 @@ import AppLayout from "./layouts/AppLayout.vue";
 <style>
 body {
   background-color: #020617;
+  color: white;
+}
+
+input,
+select,
+textarea {
+  color: black !important;
+}
+
+textarea:focus,
+input:focus {
+  color: black !important;
 }
 </style>
