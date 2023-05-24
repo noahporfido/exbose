@@ -1,8 +1,3 @@
 <template>
-  <div>
-    <h1>test</h1>
-    <h1>test</h1>
-    <h1>test</h1>
-    <h1>test</h1>
-  </div>
+  <div class="w-full h-20 flex items-center px-8"></div>
 </template>
