@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import AuthService from "../services/AuthService";
+import AuthService from "../services/strapi/AuthService";
 import { DisplayUser } from "../core/types/display/DisplayUser";
 
 export const useUserStore = defineStore("user", {

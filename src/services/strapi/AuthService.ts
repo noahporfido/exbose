@@ -1,4 +1,4 @@
-import { LoginBody } from "../core/types/requests/loginBody";
+import { LoginBody } from "../../core/types/requests/loginBody";
 import apiClient from "./httpService";
 
 const login = async (identifier: string, password: string) => {

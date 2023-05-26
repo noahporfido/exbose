@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "./pages/Home.vue";
 import Login from "./pages/Login.vue";
+import Admin from "./pages/AdminPanel.vue";
 import Register from "./pages/Register.vue";
 import { middleware } from "./middleware/auth";
 
@@ -10,6 +11,11 @@ const router = createRouter({
     {
       path: "/",
       component: Home,
+      beforeEnter: middleware,
+    },
+    {
+      path: "/admin",
+      component: Admin,
       beforeEnter: middleware,
     },
     {
